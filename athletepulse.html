@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>AthletePulse</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg: #f0f2f5;
+  --white: #ffffff;
+  --card: #ffffff;
+  --border: #e4e8ef;
+  --text: #0d1117;
+  --muted: #8892a4;
+  --green: #00c27a;
+  --green-light: #e6f9f2;
+  --orange: #ff5c35;
+  --orange-light: #fff0ec;
+  --blue: #2d7ef7;
+  --blue-light: #eaf1ff;
+  --yellow: #f5a623;
+  --yellow-light: #fff8ec;
+  --red: #e53935;
+  --shadow: 0 2px 12px rgba(0,0,0,0.07);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  --radius: 20px;
+  --radius-sm: 12px;
+  --font: 'Outfit', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── NAV BAR ── */
+.navbar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  display: flex;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+}
+.nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-family: var(--font);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.nav-btn .icon { font-size: 1.4rem; transition: transform 0.2s; }
+.nav-btn.active { color: var(--green); }
+.nav-btn.active .icon { transform: scale(1.15); }
+
+/* ── PAGES ── */
+.page { display: none; padding: 24px 16px 100px; max-width: 900px; margin: 0 auto; }
+.page.active { display: block; }
+
+/* ── HEADER ── */
+.page-header { margin-bottom: 24px; }
+.page-title { font-size: 2rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); line-height: 1; }
+.page-title span { color: var(--green); }
+.page-sub { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+
+/* ── REGISTRO RÁPIDO ── */
+.sport-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.sport-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 8px;
+  border-radius: var(--radius);
+  border: 2px solid var(--border);
+  background: var(--white);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font);
+}
+.sport-btn .sport-icon { font-size: 2rem; }
+.sport-btn .sport-name { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.sport-btn.active-cam { border-color: var(--green); background: var(--green-light); }
+.sport-btn.active-cam .sport-name { color: var(--green); }
+.sport-btn.active-crf { border-color: var(--orange); background: var(--orange-light); }
+.sport-btn.active-crf .sport-name { color: var(--orange); }
+.sport-btn.active-mtb { border-color: var(--blue); background: var(--blue-light); }
+.sport-btn.active-mtb .sport-name { color: var(--blue); }
+
+.fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.field-group { display: flex; flex-direction: column; gap: 5px; }
+.field-group.full { grid-column: 1 / -1; }
+.field-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.field-input {
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  font-family: var(--font);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+.field-input:focus { border-color: var(--green); background: var(--white); }
+.field-input::placeholder { color: var(--muted); font-weight: 400; font-size: 0.95rem; }
+
+.rpe-row {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.rpe-btn {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  background: var(--white);
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--muted);
+  transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.rpe-btn.sel-1,.rpe-btn.sel-2,.rpe-btn.sel-3 { background:#e6f9f2; border-color:var(--green); color:var(--green); }
+.rpe-btn.sel-4,.rpe-btn.sel-5,.rpe-btn.sel-6 { background:#fff8ec; border-color:var(--yellow); color:var(--yellow); }
+.rpe-btn.sel-7,.rpe-btn.sel-8 { background:#fff0ec; border-color:var(--orange); color:var(--orange); }
+.rpe-btn.sel-9,.rpe-btn.sel-10 { background:#fdecea; border-color:var(--red); color:var(--red); }
+
+.save-btn {
+  width: 100%;
+  padding: 18px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--green);
+  color: white;
+  font-family: var(--font);
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(0,194,122,0.35);
+}
+.save-btn:active { transform: scale(0.98); }
+
+/* ── HISTORIAL ── */
+.filter-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.chip {
+  padding: 7px 16px;
+  border-radius: 100px;
+  border: 2px solid var(--border);
+  background: var(--white);
+  font-family: var(--font);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--muted);
+  transition: all 0.18s;
+}
+.chip.on-cam { border-color: var(--green); background: var(--green-light); color: var(--green); }
+.chip.on-crf { border-color: var(--orange); background: var(--orange-light); color: var(--orange); }
+.chip.on-mtb { border-color: var(--blue); background: var(--blue-light); color: var(--blue); }
+.chip.on-all { border-color: var(--text); background: var(--text); color: white; }
+
+.session-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  box-shadow: var(--shadow);
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  transition: transform 0.15s;
+}
+.session-card:active { transform: scale(0.99); }
+.session-sport-dot {
+  width: 44px; height: 44px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+.dot-cam { background: var(--green-light); }
+.dot-crf { background: var(--orange-light); }
+.dot-mtb { background: var(--blue-light); }
+.session-info { flex: 1; }
+.session-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.session-name { font-weight: 800; font-size: 0.95rem; }
+.session-date { font-family: var(--mono); font-size: 0.68rem; color: var(--muted); }
+.session-metrics {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.metric-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.metric-pill .mp-icon { font-size: 0.85rem; }
+.session-eval {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+  margin-top: 8px;
+  display: inline-block;
+}
+.ev-ok   { background: var(--green-light);  color: var(--green); }
+.ev-mod  { background: var(--green-light);  color: var(--green); }
+.ev-int  { background: var(--yellow-light); color: var(--yellow); }
+.ev-alt  { background: var(--orange-light); color: var(--orange); }
+.del-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 1rem; padding: 4px;
+  flex-shrink: 0; align-self: center;
+  transition: color 0.2s;
+}
+.del-btn:hover { color: var(--red); }
+
+/* ── RESUMEN ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.stat-box {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+.stat-box::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--accent, var(--green));
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.stat-box-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 6px; }
+.stat-box-value { font-size: 2rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1; }
+.stat-box-unit  { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+.chart-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+.chart-title { font-size: 0.88rem; font-weight: 800; margin-bottom: 14px; }
+canvas { width: 100% !important; display: block; }
+
+/* ── VALORACIÓN ── */
+.val-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 12px;
+  border-left: 5px solid var(--accent, var(--green));
+}
+.val-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.val-icon { font-size: 1.4rem; }
+.val-title { font-size: 0.95rem; font-weight: 800; }
+.val-body { font-size: 0.84rem; color: #4a5568; line-height: 1.65; }
+.val-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.val-tag { background: var(--bg); border-radius: 8px; padding: 4px 10px; font-family: var(--mono); font-size: 0.68rem; color: var(--text); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--text); color: white;
+  padding: 12px 24px; border-radius: 100px;
+  font-size: 0.85rem; font-weight: 600;
+  opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap;
+  z-index: 200; box-shadow: var(--shadow-lg);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── BACKUP ── */
+.backup-row {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;
+}
+.backup-btn {
+  flex: 1; min-width: 140px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border);
+  background: var(--white);
+  font-family: var(--font);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: all 0.2s;
+  color: var(--text);
+}
+.backup-btn.exp { border-color: var(--green); color: var(--green); background: var(--green-light); }
+.backup-btn.imp { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+.backup-btn.rst { border-color: var(--orange); color: var(--orange); background: var(--orange-light); }
+.backup-btn:active { transform: scale(0.97); }
+#file-input { display: none; }
+
+.info-box {
+  background: var(--blue-light);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  font-size: 0.82rem;
+  color: #1a56a8;
+  line-height: 1.6;
+  border-left: 4px solid var(--blue);
+}
+
+.empty {
+  text-align: center; padding: 40px 20px;
+  color: var(--muted); font-size: 0.85rem;
+}
+.empty .e-icon { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<!-- ══ PAGES ══════════════════════════════════════════════════ -->
+
+<!-- REGISTRAR -->
+<div class="page active" id="page-reg">
+  <div class="page-header">
+    <div class="page-title">Athlete<span>Pulse</span></div>
+    <div class="page-sub">62 años · FCmáx teórica 158 bpm</div>
+  </div>
+
+  <div class="card">
+    <div class="field-label" style="margin-bottom:10px">Actividad</div>
+    <div class="sport-selector">
+      <button class="sport-btn" id="btn-cam" onclick="selectSport('Caminata')">
+        <span class="sport-icon">🥾</span>
+        <span class="sport-name">Caminata</span>
+      </button>
+      <button class="sport-btn" id="btn-crf" onclick="selectSport('CrossFit')">
+        <span class="sport-icon">🏋️</span>
+        <span class="sport-name">CrossFit</span>
+      </button>
+      <button class="sport-btn" id="btn-mtb" onclick="selectSport('Mountain Bike')">
+        <span class="sport-icon">🚵</span>
+        <span class="sport-name">MTB</span>
+      </button>
+    </div>
+
+    <div class="fields-grid">
+      <div class="field-group">
+        <label class="field-label">Fecha</label>
+        <input type="date" id="f-fecha" class="field-input">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Duración (min)</label>
+        <input type="number" id="f-dur" class="field-input" placeholder="60" inputmode="numeric">
+      </div>
+      <div class="field-group">
+        <label class="field-label">FC Máxima (bpm)</label>
+        <input type="number" id="f-fcmax" class="field-input" placeholder="145" inputmode="numeric">
+      </div>
+      <div class="field-group">
+        <label class="field-label">FC Mínima (bpm)</label>
+        <input type="number" id="f-fcmin" class="field-input" placeholder="65" inputmode="numeric">
+      </div>
+      <div class="field-group">
+        <label class="field-label">FC Media (bpm)</label>
+        <input type="number" id="f-fcmed" class="field-input" placeholder="110" inputmode="numeric">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Carga (TRIMP)</label>
+        <input type="number" id="f-carga" class="field-input" placeholder="120" inputmode="numeric">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Distancia (km)</label>
+        <input type="number" id="f-dist" class="field-input" placeholder="10.5" inputmode="decimal" step="0.1">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Calorías (kcal)</label>
+        <input type="number" id="f-kcal" class="field-input" placeholder="500" inputmode="numeric">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Elevación (m)</label>
+        <input type="number" id="f-elev" class="field-input" placeholder="300" inputmode="numeric">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Notas</label>
+        <input type="text" id="f-notas" class="field-input" placeholder="Opcional…">
+      </div>
+    </div>
+
+    <div class="field-label" style="margin-bottom:8px">Esfuerzo percibido (RPE)</div>
+    <div class="rpe-row" id="rpe-row">
+      <button class="rpe-btn" onclick="selectRPE(1)">1</button>
+      <button class="rpe-btn" onclick="selectRPE(2)">2</button>
+      <button class="rpe-btn" onclick="selectRPE(3)">3</button>
+      <button class="rpe-btn" onclick="selectRPE(4)">4</button>
+      <button class="rpe-btn" onclick="selectRPE(5)">5</button>
+      <button class="rpe-btn" onclick="selectRPE(6)">6</button>
+      <button class="rpe-btn" onclick="selectRPE(7)">7</button>
+      <button class="rpe-btn" onclick="selectRPE(8)">8</button>
+      <button class="rpe-btn" onclick="selectRPE(9)">9</button>
+      <button class="rpe-btn" onclick="selectRPE(10)">10</button>
+    </div>
+
+    <button class="save-btn" onclick="guardar()">＋ Guardar entrenamiento</button>
+  </div>
+</div>
+
+<!-- HISTORIAL -->
+<div class="page" id="page-his">
+  <div class="page-header">
+    <div class="page-title">Historial</div>
+    <div class="page-sub" id="his-sub">Todos los registros</div>
+  </div>
+  <div class="filter-chips">
+    <button class="chip on-all" id="chip-all" onclick="filtrar('')">Todos</button>
+    <button class="chip" id="chip-cam" onclick="filtrar('Caminata')">🥾 Caminata</button>
+    <button class="chip" id="chip-crf" onclick="filtrar('CrossFit')">🏋️ CrossFit</button>
+    <button class="chip" id="chip-mtb" onclick="filtrar('Mountain Bike')">🚵 MTB</button>
+  </div>
+  <div id="lista-sesiones"></div>
+</div>
+
+<!-- RESUMEN -->
+<div class="page" id="page-res">
+  <div class="page-header">
+    <div class="page-title">Resumen</div>
+    <div class="page-sub">Estadísticas globales</div>
+  </div>
+  <div class="stats-row" id="stats-boxes"></div>
+  <div class="chart-card">
+    <div class="chart-title">FC Media por sesión</div>
+    <canvas id="c-fc" height="180"></canvas>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Carga por sesión (TRIMP)</div>
+    <canvas id="c-carga" height="180"></canvas>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Actividades</div>
+    <canvas id="c-pie" height="180"></canvas>
+  </div>
+</div>
+
+<!-- VALORACIÓN -->
+<div class="page" id="page-val">
+  <div class="page-header">
+    <div class="page-title">Valoración</div>
+    <div class="page-sub">Análisis para 62 años</div>
+  </div>
+  <div id="val-content"></div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <button class="nav-btn active" id="nav-reg" onclick="goPage('reg')">
+    <span class="icon">📝</span>Registrar
+  </button>
+  <button class="nav-btn" id="nav-his" onclick="goPage('his')">
+    <span class="icon">📋</span>Historial
+  </button>
+  <button class="nav-btn" id="nav-res" onclick="goPage('res')">
+    <span class="icon">📊</span>Resumen
+  </button>
+  <button class="nav-btn" id="nav-val" onclick="goPage('val')">
+    <span class="icon">🩺</span>Valoración
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="file-input" accept=".json" onchange="importar(event)">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+// ── STORE ──────────────────────────────────────────────────────
+const KEY = 'ap_v2';
+let DB = [];
+try { DB = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { DB = []; }
+const persist = () => localStorage.setItem(KEY, JSON.stringify(DB));
+
+// ── STATE ──────────────────────────────────────────────────────
+let selSport = 'Caminata';
+let selRPE   = 0;
+let filtroAct = '';
+const FCM = 158, EDAD = 62;
+
+// ── INIT ───────────────────────────────────────────────────────
+document.getElementById('f-fecha').value = new Date().toISOString().slice(0,10);
+selectSport('Caminata');
+
+// ── NAVIGATION ─────────────────────────────────────────────────
+function goPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.getElementById('nav-' + id).classList.add('active');
+  if (id === 'his') renderHistorial();
+  if (id === 'res') renderResumen();
+  if (id === 'val') renderValoracion();
+}
+
+// ── SPORT SELECT ───────────────────────────────────────────────
+function selectSport(s) {
+  selSport = s;
+  document.getElementById('btn-cam').className = 'sport-btn' + (s==='Caminata'?' active-cam':'');
+  document.getElementById('btn-crf').className = 'sport-btn' + (s==='CrossFit'?' active-crf':'');
+  document.getElementById('btn-mtb').className = 'sport-btn' + (s==='Mountain Bike'?' active-mtb':'');
+}
+
+// ── RPE ────────────────────────────────────────────────────────
+function selectRPE(v) {
+  selRPE = v;
+  document.querySelectorAll('.rpe-btn').forEach((b,i) => {
+    b.className = 'rpe-btn' + (i+1 <= v ? ' sel-'+v : '');
+  });
+}
+
+// ── TOAST ──────────────────────────────────────────────────────
+let _tt;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(_tt); _tt = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+// ── GUARDAR ────────────────────────────────────────────────────
+function guardar() {
+  const fecha = document.getElementById('f-fecha').value;
+  const dur   = +document.getElementById('f-dur').value;
+  if (!fecha || !dur) { toast('⚠️ Fecha y duración son obligatorias'); return; }
+
+  DB.push({
+    id: Date.now(), fecha,
+    actividad: selSport,
+    duracion: dur,
+    fcmax:  +document.getElementById('f-fcmax').value  || 0,
+    fcmin:  +document.getElementById('f-fcmin').value  || 0,
+    fcmed:  +document.getElementById('f-fcmed').value  || 0,
+    carga:  +document.getElementById('f-carga').value  || 0,
+    dist:   +document.getElementById('f-dist').value   || 0,
+    kcal:   +document.getElementById('f-kcal').value   || 0,
+    elev:   +document.getElementById('f-elev').value   || 0,
+    rpe:    selRPE,
+    notas:  document.getElementById('f-notas').value
+  });
+  persist();
+
+  // reset campos
+  ['f-dur','f-fcmax','f-fcmin','f-fcmed','f-carga','f-dist','f-kcal','f-elev','f-notas']
+    .forEach(id => document.getElementById(id).value = '');
+  selectRPE(0);
+  document.getElementById('f-fecha').value = new Date().toISOString().slice(0,10);
+  toast('✅ Entrenamiento guardado');
+}
+
+// ── HISTORIAL ──────────────────────────────────────────────────
+function filtrar(act) {
+  filtroAct = act;
+  ['all','cam','crf','mtb'].forEach(k => document.getElementById('chip-'+k).className='chip');
+  if (!act) document.getElementById('chip-all').className='chip on-all';
+  else if (act==='Caminata')      document.getElementById('chip-cam').className='chip on-cam';
+  else if (act==='CrossFit')      document.getElementById('chip-crf').className='chip on-crf';
+  else                             document.getElementById('chip-mtb').className='chip on-mtb';
+  renderHistorial();
+}
+
+function sportDot(a) {
+  if (a==='Caminata')     return ['dot-cam','🥾'];
+  if (a==='CrossFit')     return ['dot-crf','🏋️'];
+  return ['dot-mtb','🚵'];
+}
+function evalFC(v) {
+  const p=(v/FCM)*100;
+  if(p<70) return ['ev-ok','✓ Suave'];
+  if(p<85) return ['ev-mod','✓ Moderado'];
+  if(p<95) return ['ev-int','⚡ Intenso'];
+  return ['ev-alt','⚠ Muy alto'];
+}
+
+function renderHistorial() {
+  let data = [...DB].sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  if (filtroAct) data = data.filter(e => e.actividad === filtroAct);
+  document.getElementById('his-sub').textContent = `${data.length} sesión${data.length!==1?'es':''}${filtroAct?' · '+filtroAct:''}`;
+  const cont = document.getElementById('lista-sesiones');
+  if (!data.length) {
+    cont.innerHTML = '<div class="empty"><span class="e-icon">🏃</span>Sin registros todavía.</div>';
+    return;
+  }
+  cont.innerHTML = data.map(e => {
+    const [dc, di] = sportDot(e.actividad);
+    const [ec, el] = e.fcmax ? evalFC(e.fcmax) : ['ev-ok','—'];
+    const metrics = [];
+    if(e.duracion) metrics.push(`<span class="metric-pill"><span class="mp-icon">⏱</span>${e.duracion} min</span>`);
+    if(e.fcmax)    metrics.push(`<span class="metric-pill"><span class="mp-icon">❤️</span>${e.fcmax} bpm máx</span>`);
+    if(e.fcmed)    metrics.push(`<span class="metric-pill"><span class="mp-icon">💗</span>${e.fcmed} bpm med</span>`);
+    if(e.dist)     metrics.push(`<span class="metric-pill"><span class="mp-icon">📍</span>${e.dist} km</span>`);
+    if(e.kcal)     metrics.push(`<span class="metric-pill"><span class="mp-icon">🔥</span>${e.kcal} kcal</span>`);
+    if(e.elev)     metrics.push(`<span class="metric-pill"><span class="mp-icon">⛰</span>${e.elev} m</span>`);
+    if(e.rpe)      metrics.push(`<span class="metric-pill"><span class="mp-icon">💪</span>RPE ${e.rpe}/10</span>`);
+    return `<div class="session-card">
+      <div class="session-sport-dot ${dc}">${di}</div>
+      <div class="session-info">
+        <div class="session-top">
+          <span class="session-name">${e.actividad}</span>
+          <span class="session-date">${e.fecha}</span>
+        </div>
+        <div class="session-metrics">${metrics.join('')}</div>
+        ${e.fcmax ? `<div class="session-eval ${ec}">${el}</div>` : ''}
+        ${e.notas ? `<div style="font-size:0.75rem;color:var(--muted);margin-top:6px">📝 ${e.notas}</div>` : ''}
+      </div>
+      <button class="del-btn" onclick="borrar(${e.id})">🗑</button>
+    </div>`;
+  }).join('');
+}
+
+function borrar(id) {
+  if (!confirm('¿Eliminar este entrenamiento?')) return;
+  DB = DB.filter(e => e.id !== id); persist(); renderHistorial();
+  toast('Entrenamiento eliminado');
+}
+
+// ── RESUMEN ────────────────────────────────────────────────────
+const cx = {};
+function killChart(id) { if(cx[id]){cx[id].destroy();delete cx[id];} }
+
+function renderResumen() {
+  const d = DB, n = d.length;
+  const sum = f => d.reduce((s,e)=>s+(e[f]||0),0);
+  const vv  = f => d.filter(e=>e[f]).map(e=>e[f]);
+  const avg = arr => arr.length ? Math.round(arr.reduce((a,b)=>a+b)/arr.length) : 0;
+  const maxFC = vv('fcmax').length ? Math.max(...vv('fcmax')) : 0;
+
+  const boxes = [
+    {l:'Sesiones', v:n, u:'total', a:'var(--green)'},
+    {l:'Tiempo',   v:Math.round(sum('duracion')/60*10)/10, u:'horas', a:'var(--blue)'},
+    {l:'FC máx. pico', v:maxFC||'—', u:'bpm', a:'var(--orange)'},
+    {l:'FC media',     v:avg(vv('fcmed'))||'—', u:'bpm', a:'var(--yellow)'},
+    {l:'Distancia', v:Math.round(sum('dist')*10)/10, u:'km', a:'var(--green)'},
+    {l:'Calorías',  v:sum('kcal'), u:'kcal', a:'var(--orange)'},
+  ];
+  document.getElementById('stats-boxes').innerHTML = boxes.map(b=>`
+    <div class="stat-box" style="--accent:${b.a}">
+      <div class="stat-box-label">${b.l}</div>
+      <div class="stat-box-value">${b.v}</div>
+      <div class="stat-box-unit">${b.u}</div>
+    </div>`).join('');
+
+  const sorted = [...d].sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  const labels = sorted.map(e=>e.fecha.slice(5));
+  const col = e => e.actividad==='Caminata'?'#00c27a':e.actividad==='CrossFit'?'#ff5c35':'#2d7ef7';
+  const baseOpts = {
+    responsive:true,
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'#0d1117',titleColor:'#fff',bodyColor:'#aab'}},
+    scales:{
+      x:{ticks:{color:'#8892a4',font:{family:'Outfit',size:10}},grid:{color:'#e4e8ef'}},
+      y:{ticks:{color:'#8892a4',font:{family:'Outfit',size:10}},grid:{color:'#e4e8ef'}}
+    }
+  };
+
+  killChart('fc');
+  cx['fc'] = new Chart(document.getElementById('c-fc'), {
+    type:'line',
+    data:{labels, datasets:[{data:sorted.map(e=>e.fcmed||null), borderColor:'#00c27a', backgroundColor:'rgba(0,194,122,0.1)', tension:0.4, pointBackgroundColor:sorted.map(col), pointRadius:5, fill:true}]},
+    options: baseOpts
+  });
+
+  killChart('carga');
+  cx['carga'] = new Chart(document.getElementById('c-carga'), {
+    type:'bar',
+    data:{labels, datasets:[{data:sorted.map(e=>e.carga||0), backgroundColor:sorted.map(col), borderRadius:6}]},
+    options: baseOpts
+  });
+
+  const cnt={};
+  d.forEach(e=>{cnt[e.actividad]=(cnt[e.actividad]||0)+1;});
+  killChart('pie');
+  cx['pie'] = new Chart(document.getElementById('c-pie'), {
+    type:'doughnut',
+    data:{labels:Object.keys(cnt), datasets:[{data:Object.values(cnt), backgroundColor:['#00c27a','#ff5c35','#2d7ef7'], borderWidth:0, hoverOffset:8}]},
+    options:{responsive:true,plugins:{legend:{labels:{color:'#0d1117',font:{family:'Outfit',size:12,weight:'600'}}},tooltip:{backgroundColor:'#0d1117'}}}
+  });
+}
+
+// ── VALORACIÓN ─────────────────────────────────────────────────
+function renderValoracion() {
+  const el = document.getElementById('val-content');
+  if (!DB.length) {
+    el.innerHTML='<div class="empty"><span class="e-icon">🩺</span>Añade entrenamientos para ver tu valoración.</div>';
+    return;
+  }
+  const vv  = f => DB.filter(e=>e[f]).map(e=>e[f]);
+  const avg = arr => arr.length ? Math.round(arr.reduce((a,b)=>a+b)/arr.length) : 0;
+  const maxFC = vv('fcmax').length ? Math.max(...vv('fcmax')) : 0;
+  const avgMed = avg(vv('fcmed')), avgCarga = avg(vv('carga'));
+  const avgRPE = vv('rpe').length ? (vv('rpe').reduce((a,b)=>a+b)/vv('rpe').length).toFixed(1) : 0;
+  const pct = maxFC ? Math.round((maxFC/FCM)*100) : 0;
+  const acts = new Set(DB.map(e=>e.actividad));
+
+  const cards = [];
+
+  // FC Máx
+  let ic,tt,bb;
+  if (!pct) { ic='❓'; tt='FC Máxima'; bb='Sin datos de FC máxima aún.'; }
+  else if (pct<75) { ic='✅'; tt='FC Máxima — Zona suave'; bb=`Tu FC máxima registrada es ${maxFC} bpm (${pct}% de tu FCmáx teórica). Entrenas en zona segura y aeróbica. Perfecto para tu edad.`; }
+  else if (pct<90) { ic='⚡'; tt='FC Máxima — Zona umbral'; bb=`FC máxima de ${maxFC} bpm (${pct}%). Esfuerzo considerable. Adecuado si no es tu zona habitual. Vigila la recuperación.`; }
+  else { ic='⚠️'; tt='FC Máxima — Zona muy alta'; bb=`FC máxima de ${maxFC} bpm (${pct}%). Muy elevada para ${EDAD} años. Modera la intensidad y consulta con un especialista si ocurre con frecuencia.`; }
+  cards.push({ic,tt,bb,acc:pct<75?'var(--green)':pct<90?'var(--yellow)':'var(--orange)',
+    tags:[`FCmáx: ${maxFC||'—'} bpm`,`Teórica: ${FCM} bpm`,`${pct}% capacidad`]});
+
+  // FC Media
+  if (!avgMed) { ic='❓'; tt='FC Media'; bb='Sin datos de FC media.'; }
+  else { const p=Math.round((avgMed/FCM)*100);
+    if(p<65){ic='✅';tt='FC Media — Zona aeróbica suave';bb=`FC media de ${avgMed} bpm (${p}%). Zona baja. Excelente para la longevidad y la recuperación activa.`;}
+    else if(p<80){ic='✅';tt='FC Media — Zona aeróbica moderada';bb=`FC media de ${avgMed} bpm (${p}%). Estímulo cardiovascular saludable. Buen equilibrio.`;}
+    else{ic='⚠️';tt='FC Media — Zona alta';bb=`FC media de ${avgMed} bpm (${p}%). Intensidad elevada. A los ${EDAD} años, el 80% del entrenamiento debería estar por debajo de 111 bpm (Z2).`;}
+    cards.push({ic,tt,bb,acc:p<80?'var(--green)':'var(--orange)',tags:[`FC media: ${avgMed} bpm`]});
+  }
+
+  // Carga
+  if (!avgCarga) { ic='❓'; tt='Carga (TRIMP)'; bb='Sin datos de carga.'; }
+  else if(avgCarga<80){ic='✅';tt='Carga — Nivel suave';bb=`Carga media de ${avgCarga} TRIMP/sesión. Perfecto para fases de base o recuperación.`;}
+  else if(avgCarga<150){ic='✅';tt='Carga — Nivel moderado';bb=`Carga media de ${avgCarga} TRIMP. Adecuada para un deportista activo de ${EDAD} años. Respeta 48h entre sesiones intensas.`;}
+  else{ic='⚡';tt='Carga — Nivel alto';bb=`Carga media de ${avgCarga} TRIMP. Vigila el sobreentrenamiento: fatiga, FC reposo elevada, irritabilidad.`;}
+  cards.push({ic,tt,bb,acc:avgCarga<150?'var(--green)':'var(--orange)',tags:[`Carga media: ${avgCarga} TRIMP`]});
+
+  // RPE
+  if (avgRPE) {
+    const r = +avgRPE;
+    if(r<=5){ic='✅';tt='Esfuerzo Percibido — Controlado';bb=`RPE medio de ${avgRPE}/10. Sensación de esfuerzo baja-moderada. Perfil de entrenamiento sostenible.`;}
+    else if(r<=7){ic='✅';tt='Esfuerzo Percibido — Funcional';bb=`RPE medio de ${avgRPE}/10. Nivel adecuado. Intenta que la mayoría de sesiones no superen 6/10.`;}
+    else{ic='⚠️';tt='Esfuerzo Percibido — Elevado';bb=`RPE medio de ${avgRPE}/10. Sesiones muy exigentes. Añade más días de baja intensidad (RPE 4–5).`;}
+    cards.push({ic,tt,bb,acc:r<=7?'var(--green)':'var(--orange)',tags:[`RPE medio: ${avgRPE}/10`]});
+  }
+
+  // Variedad
+  if(acts.size>=3){ic='✅';tt='Variedad deportiva — Excelente';bb='Practicas las 3 disciplinas. La variedad reduce lesiones, estimula sistemas energéticos distintos y mantiene la motivación.';}
+  else{ic='ℹ️';tt='Variedad deportiva';bb=`Tienes ${acts.size} actividad(es) registrada(s). Combinar Caminata + CrossFit + MTB maximiza los beneficios para tu edad.`;}
+  cards.push({ic,tt,bb,acc:'var(--blue)',tags:[`Disciplinas: ${acts.size}/3`,`Sesiones: ${DB.length}`]});
+
+  el.innerHTML = cards.map(c=>`
+    <div class="val-card" style="--accent:${c.acc}">
+      <div class="val-header"><span class="val-icon">${c.ic}</span><span class="val-title">${c.tt}</span></div>
+      <div class="val-body">${c.bb}</div>
+      ${c.tags?`<div class="val-tags">${c.tags.map(t=>`<span class="val-tag">${t}</span>`).join('')}</div>`:''}
+    </div>`).join('');
+}
+
+// ── BACKUP ─────────────────────────────────────────────────────
+// Botones de backup accesibles desde cualquier página — los añadimos dinámicamente
+// en la página de valoración como sección extra
+window.exportar = function() {
+  if (!DB.length) { toast('⚠️ No hay datos que exportar'); return; }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify({app:'AthletePulse',v:2,date:new Date().toISOString(),datos:DB},null,2)],{type:'application/json'}));
+  a.download = `athletepulse-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  toast(`✅ Backup exportado: ${DB.length} sesiones`);
+};
+window.importarClick = () => document.getElementById('file-input').click();
+function importar(ev) {
+  const f = ev.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = e => {
+    try {
+      let p = JSON.parse(e.target.result);
+      let datos = Array.isArray(p) ? p : (p.datos||[]);
+      const ids = new Set(DB.map(x=>x.id));
+      const nuevos = datos.filter(d=>!ids.has(d.id));
+      DB=[...DB,...nuevos]; persist();
+      toast(`✅ ${nuevos.length} sesiones importadas`);
+    } catch { toast('❌ Archivo no válido'); }
+    ev.target.value='';
+  };
+  r.readAsText(f);
+}
+window.resetear = () => {
+  if(!DB.length){toast('Sin datos que borrar');return;}
+  if(!confirm(`¿Borrar los ${DB.length} entrenamientos?\n\nExporta un backup antes.`))return;
+  DB=[]; localStorage.removeItem(KEY); toast('🗑 Datos eliminados');
+};
+
+// Añadir sección de backup al final de valoración
+const valPage = document.getElementById('page-val');
+const bkSection = document.createElement('div');
+bkSection.innerHTML = `
+  <div style="margin-top:8px">
+    <div class="page-sub" style="margin-bottom:12px;font-weight:700;color:var(--text)">💾 Copia de seguridad</div>
+    <div class="backup-row">
+      <button class="backup-btn exp" onclick="exportar()">⬇ Exportar backup</button>
+      <button class="backup-btn imp" onclick="importarClick()">⬆ Importar backup</button>
+      <button class="backup-btn rst" onclick="resetear()">🗑 Borrar todo</button>
+    </div>
+    <div class="info-box">
+      <strong>¿Cómo funciona?</strong><br>
+      Pulsa <strong>Exportar backup</strong> para guardar tus datos en un archivo .json. Si cambias de dispositivo o navegador, usa <strong>Importar backup</strong> para recuperarlos.<br><br>
+      ⚠️ Esta app guarda los datos en <strong>Safari</strong>. Ábrela siempre en Safari para que funcione correctamente.
+    </div>
+  </div>`;
+valPage.appendChild(bkSection);
+</script>
+</body>
+</html>
